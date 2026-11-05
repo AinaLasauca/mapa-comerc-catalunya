@@ -1,3 +1,5 @@
-# Comerç i planejament
+# Els eixos comercials: què diuen les dades
 
-Mapa de comerç i planejament de J3B3. L'accés és restringit: les pàgines estan xifrades i cal la contrasenya per consultar-les.
+Eina de J3B3 per conèixer els eixos comercials dels municipis i contrastar-los amb el planejament.
+
+Consulta: https://ainalasauca.github.io/mapa-comerc-catalunya/
