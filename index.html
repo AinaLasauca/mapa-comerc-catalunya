@@ -481,6 +481,38 @@ body:has(.fx.on) .vx-mlg{right:380px}
 .prop-relat .prop{font-size:12px}
 
 /* PROP-CSS-FI */
+/* MOBP-CSS-INICI (mobil_polit.py) */
+@media(max-width:700px){
+  body.mobil .fil-intro{padding:28px 20px 96px}
+  body.mobil .fil-intro h1{font-size:30px;margin-bottom:14px}
+  body.mobil .fil-intro p{font-size:15px;margin-bottom:10px}
+  body.mobil .fil-intro p:nth-of-type(3),body.mobil .fil-intro p:last-of-type{display:none}
+  body.mobil .fil-intro .q{gap:8px;margin:14px 0}
+  body.mobil .fil-intro .q div{font-size:13px;padding-top:7px}
+  body.mobil .mob-comenca{position:fixed;left:20px;right:20px;bottom:calc(16px + env(safe-area-inset-bottom));margin:0;z-index:1300;text-align:center;box-shadow:0 8px 24px rgba(50,30,229,.35)}
+  body.mobil.relat .mob-comenca,body.mobil.lliure .mob-comenca{display:none}
+  body.mobil.relat .mob-panel{height:auto!important;max-height:52svh;min-height:0}
+  body.mobil.relat .mob-cos{padding:12px 18px 6px}
+  body.mobil.relat .mob-cos h2{font-size:17px}
+  body.mobil.relat .mob-cos p{font-size:13.5px}
+  body.mobil .vx-badge{top:8px!important;font-size:10.5px!important;padding:4px 10px!important}
+  body.mobil .vx-mlg{top:38px!important;left:8px!important;right:8px!important;transform:none!important;width:auto!important;padding:6px 9px!important;border-radius:9px!important}
+  body.mobil .vx-mlg b{font-size:10.5px!important;margin-bottom:3px!important}
+  body.mobil .vx-mlg .cl{height:7px!important}
+  body.mobil .vx-mlg .tx{font-size:9px!important;margin-top:2px!important}
+  body.mobil .vx-mlg .ft{display:none!important}
+  body.mobil .leaflet-control-zoom{display:none!important}
+  body.mobil.lliure .mun-cerca{top:8px;left:8px;width:calc(100vw - 16px);padding:6px;border-radius:12px}
+  body.mobil.lliure .mun-cerca input{padding:9px 14px;font-size:15px}
+  body.mobil.lliure .vx-mlg{top:66px!important}
+  body.mobil.lliure .vx-badge{display:none!important}
+  body.mobil .fx{height:50svh!important}
+  body.mobil .eix-b{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 58px!important}
+  body.mobil .eix-bn{white-space:normal!important;line-height:1.2}
+  body.mobil .leaflet-control-attribution{font-size:8px!important}
+  body.mobil .fx-x{background:#fff!important;box-shadow:0 2px 10px rgba(5,6,76,.18);width:34px!important;height:34px!important;z-index:5}
+}
+/* MOBP-CSS-FI */
 </style>
 <!-- MAPLIBRE (vista_eixos.py) -->
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
@@ -2022,6 +2054,20 @@ obreFitxa=function(p){_obreFitxaMun(p);const ll=EIX_MUN[p.ci];if(!ll)return;
 })();
 
 /* PROP-FI */
+/* MOBP-INICI (mobil_polit.py) */
+(function(){
+  if(!document.body.classList.contains('mobil'))return;
+  const mw=document.querySelector('.mw'),panel=document.querySelector('.mob-panel');
+  function ajusta(){
+    let h=innerHeight;
+    if(document.body.classList.contains('relat')&&panel)h=innerHeight-panel.offsetHeight+12;
+    mw.style.setProperty('height',Math.max(220,h)+'px','important');map.invalidateSize();
+  }
+  if(panel)new ResizeObserver(function(){ajusta()}).observe(panel);
+  new MutationObserver(function(){setTimeout(ajusta,60)}).observe(document.body,{attributes:true,attributeFilter:['class']});
+  addEventListener('resize',ajusta);ajusta();
+})();
+/* MOBP-FI */
 syncYear();renderGeo();renderList('');
 </script>
 </body>
