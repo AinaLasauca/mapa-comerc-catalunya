@@ -430,6 +430,15 @@ body.lliure .fil-tornar{display:block}
   body.mobil.relat .fx{display:none!important}
   body.mobil .vx-mlg{top:46px}
 }
+@media(max-width:700px){
+  body.mobscroll.relat .mob-panel{height:46svh!important;max-height:none!important}
+  .mob-prog{height:3px;background:#eeedfb;border-radius:16px 16px 0 0;overflow:hidden}.mob-prog i{display:block;height:100%;width:0;background:#321ee5;transition:width .3s}
+  .mob-cos{scroll-snap-type:y proximity}
+  .mob-pas{min-height:calc(46svh - 30px);padding:6px 0 18px;border-bottom:1px solid #f1f1f5;scroll-snap-align:start;opacity:.45;transition:opacity .25s}
+  .mob-pas.actiu{opacity:1}
+  .mob-pas:first-child::after{content:'Llisqueu cap amunt per continuar ↑';display:block;margin-top:14px;font:600 12px 'Manrope',sans-serif;color:#321ee5}
+  .mob-final{height:20svh}
+}
 /* MOB-CSS-FI */
 /* MUN-CSS-INICI (municipi_mapa.py) */
 body.lliure .sb{display:none!important}
@@ -491,7 +500,7 @@ body:has(.fx.on) .vx-mlg{right:380px}
   body.mobil .fil-intro .q div{font-size:13px;padding-top:7px}
   body.mobil .mob-comenca{position:fixed;left:20px;right:20px;bottom:calc(16px + env(safe-area-inset-bottom));margin:0;z-index:1300;text-align:center;box-shadow:0 8px 24px rgba(50,30,229,.35)}
   body.mobil.relat .mob-comenca,body.mobil.lliure .mob-comenca{display:none}
-  body.mobil.relat .mob-panel{height:auto!important;max-height:52svh;min-height:0}
+  body.mobil.relat:not(.mobscroll) .mob-panel{height:auto!important;max-height:52svh;min-height:0}
   body.mobil.relat .mob-cos{padding:12px 18px 6px}
   body.mobil.relat .mob-cos h2{font-size:17px}
   body.mobil.relat .mob-cos p{font-size:13.5px}
@@ -1741,6 +1750,8 @@ obreFitxa=function(p){_obreFitxaMun(p);const ll=EIX_MUN[p.ci];if(!ll)return;
   window.FIL={ACC:ACC,BLOCS:BLOCS,lliure:lliure,quiet:mapaQuiet,MOBIL:MOBIL};
   window.FIL={ACC:ACC,BLOCS:BLOCS,lliure:lliure,quiet:mapaQuiet,MOBIL:MOBIL};
   window.FIL={ACC:ACC,BLOCS:BLOCS,lliure:lliure,quiet:mapaQuiet,MOBIL:MOBIL};
+  window.FIL={ACC:ACC,BLOCS:BLOCS,lliure:lliure,quiet:mapaQuiet,MOBIL:MOBIL};
+  window.FIL={ACC:ACC,BLOCS:BLOCS,lliure:lliure,quiet:mapaQuiet,MOBIL:MOBIL};
 })();
 /* FIL-FI */
 /* PDF-INICI (pdf_eix.py) */
@@ -1807,40 +1818,40 @@ obreFitxa=function(p){_obreFitxaMun(p);const ll=EIX_MUN[p.ci];if(!ll)return;
 /* MOB-INICI (mobil_relat.py) */
 (function(){
   if(!window.FIL||innerWidth>700)return;
-  document.body.classList.add('mobil');
-  const passos=[...document.querySelectorAll('#fil .fil-pas')];let i=0,enFitxa=false;
+  document.body.classList.add('mobil','mobscroll');
+  const passos=[...document.querySelectorAll('#fil .fil-pas')];let i=0,scrollDesat=0;
   const panel=document.createElement('div');panel.className='mob-panel';
-  panel.innerHTML='<div class="mob-cos" id="mobCos"></div><div class="mob-nav"><button id="mobAnt">← Anterior</button><span class="mob-n" id="mobN"></span><button class="prim" id="mobSeg">Següent →</button></div>';
+  panel.innerHTML='<div class="mob-prog"><i id="mobProg"></i></div><div class="mob-cos" id="mobCos"><div id="mobLlista"></div><div id="mobFitxa" style="display:none"></div></div>';
   document.body.appendChild(panel);
-  const cos=document.getElementById('mobCos');
-  /* botó per començar a la pantalla d'entrada */
+  const cos=document.getElementById('mobCos'),llista=document.getElementById('mobLlista'),fitxa=document.getElementById('mobFitxa');
+  llista.innerHTML=passos.map(function(p,k){return '<section class="mob-pas" data-k="'+k+'">'+p.innerHTML+'</section>'}).join('')+'<div class="mob-final"></div>';
+  llista.querySelectorAll('.mob-pas').forEach(function(sec){const a=passos[+sec.dataset.k].dataset.acc;
+    if(a==='lliure'){const b=sec.querySelector('#filLliure');if(b){b.id='';b.onclick=function(){document.body.classList.remove('relat');FIL.lliure(true)}}
+      const c=sec.querySelector('#filCerca');if(c){c.id='';c.onchange=function(){const v=c.value;document.body.classList.remove('relat');FIL.lliure(true);setTimeout(function(){if(window.triaMunicipi)triaMunicipi(v)},450)}}}});
+  /* botó per començar */
   const intro=document.querySelector('.fil-intro>div');
-  if(intro){const b=document.createElement('button');b.className='mob-comenca';b.textContent='Comença →';intro.appendChild(b);b.onclick=function(){comenca()}}
-  function comenca(){document.body.classList.add('relat');window.scrollTo(0,0);FIL.quiet(false);setTimeout(function(){map.invalidateSize();mostra(0)},60)}
-  function mostra(n){i=Math.max(0,Math.min(passos.length-1,n));enFitxa=false;const pas=passos[i];
-    cos.innerHTML=pas.innerHTML;cos.scrollTop=0;
-    document.getElementById('mobN').textContent=(i+1)+' de '+passos.length;
-    document.getElementById('mobAnt').disabled=i===0;
-    const seg=document.getElementById('mobSeg');seg.style.visibility=i===passos.length-1?'hidden':'visible';
-    const a=pas.dataset.acc;window.BLOCS_VISIBLES=FIL.BLOCS[a]||null;
-    if(a==='lliure'){const b=cos.querySelector('#filLliure');if(b)b.onclick=function(){document.body.classList.remove('relat');FIL.lliure(true)};
-      const c=cos.querySelector('#filCerca');if(c)c.onchange=function(){const v=c.value;document.body.classList.remove('relat');FIL.lliure(true);setTimeout(function(){const x=document.getElementById('vxCerca');if(x)x.value=v;vesMunicipi(v)},450)}}
-    (FIL.ACC[a]||function(){})();
-  }
-  document.getElementById('mobAnt').onclick=function(){enFitxa?mostra(i):mostra(i-1)};
-  document.getElementById('mobSeg').onclick=function(){enFitxa?mostra(i):mostra(i+1)};
-  /* eix tocat: fitxa sencera al panell, mapa visible */
+  if(intro){const b=document.createElement('button');b.className='mob-comenca';b.textContent='Comença \u2192';intro.appendChild(b);b.onclick=function(){comenca()}}
+  function comenca(){document.body.classList.add('relat');window.scrollTo(0,0);FIL.quiet(false);setTimeout(function(){map.invalidateSize();activa(0)},60)}
+  function activa(k){if(k===i&&k!==0&&document.body.dataset.mobIni)return;document.body.dataset.mobIni=1;i=k;
+    llista.querySelectorAll('.mob-pas').forEach(function(x){x.classList.toggle('actiu',+x.dataset.k===k)});
+    document.getElementById('mobProg').style.width=(100*(k+1)/passos.length)+'%';
+    const a=passos[k].dataset.acc;window.BLOCS_VISIBLES=FIL.BLOCS[a]||null;clearTimeout(window._mobT);
+    window._mobT=setTimeout(function(){if(i===k)(FIL.ACC[a]||function(){})()},200)}
+  /* el pas actiu és el que hi ha a la part de dalt del panell */
+  const obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&fitxa.style.display==='none')activa(+e.target.dataset.k)})},{root:cos,rootMargin:'0px 0px -70% 0px',threshold:0});
+  llista.querySelectorAll('.mob-pas').forEach(function(s){obs.observe(s)});
+  /* eix tocat: fitxa sencera al panell */
   const _obreMob=obreEix;
   obreEix=function(p){_obreMob(p);
     if(!document.body.classList.contains('relat'))return;
-    if(window.BLOCS_VISIBLES!=null)return;   /* fitxes del relat: ja són dins el pas */
-    enFitxa=true;const n=document.querySelector('#fxB .eix-fitxa');
-    cos.innerHTML='<button class="mob-torna">← Tornar al pas '+(i+1)+'</button>'+(n?n.outerHTML:'');cos.scrollTop=0;
-    cos.querySelector('.mob-torna').onclick=function(){mostra(i)};
-    const b=cos.querySelector('.pdf-boto');if(b)b.onclick=function(){pdfEix(p,b)};
+    if(window.BLOCS_VISIBLES!=null)return;
+    const n=document.querySelector('#fxB .eix-fitxa');scrollDesat=cos.scrollTop;
+    fitxa.innerHTML='<button class="mob-torna">\u2190 Tornar al relat</button>'+(n?n.outerHTML:'');
+    llista.style.display='none';fitxa.style.display='';cos.scrollTop=0;
+    fitxa.querySelector('.mob-torna').onclick=function(){fitxa.style.display='none';llista.style.display='';cos.scrollTop=scrollDesat;(FIL.ACC[passos[i].dataset.acc]||function(){})()};
+    const b=fitxa.querySelector('.pdf-boto');if(b)b.onclick=function(){pdfEix(p,b)};
     document.getElementById('fx').classList.remove('on')};
-  /* tornar al relat des del mode lliure */
-  const torna=document.querySelector('.fil-tornar');if(torna)torna.addEventListener('click',function(){setTimeout(function(){document.body.classList.add('relat');FIL.quiet(false);map.invalidateSize();mostra(i)},420)});
+  const torna=document.querySelector('.fil-tornar');if(torna)torna.addEventListener('click',function(){setTimeout(function(){document.body.classList.add('relat');FIL.quiet(false);map.invalidateSize();(FIL.ACC[passos[i].dataset.acc]||function(){})()},420)});
 })();
 /* MOB-FI */
 /* RUBI-INICI (rubi_capes_mapa.py) */
